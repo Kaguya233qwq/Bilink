@@ -1,12 +1,14 @@
-import time
-
 import httpx
 import json
 import qrcode
 import asyncio
 
+Notice = "\033[32m[Notice]\033[0m"
+
 
 class BiliLogin:
+    """登录类"""
+
     def __init__(self):
         self.url_qrcode = 'http://passport.bilibili.com/x/passport-login/web/qrcode/generate'
         self.url_poll = 'http://passport.bilibili.com/x/passport-login/web/qrcode/poll'
@@ -31,16 +33,16 @@ class BiliLogin:
 
     @staticmethod
     async def save_qrcode(url_qrcode):
+        global Notice
         qr_code = qrcode.QRCode()
         qr_code.add_data(url_qrcode)
         qr_code.print_ascii(invert=True)
         qr_code = qr_code.make_image()
         qr_code.save('qrCode.png')
-        print('二维码生成成功，请使用bilibili客户端扫描确认')
+        print(Notice + ' 二维码生成成功，请使用bilibili客户端扫描确认')
 
     async def polling(self, qrcode_key):
         """轮询扫码状态"""
-        head = '【提示信息】'
         while True:
             async with httpx.AsyncClient() as client:
                 params = {
@@ -55,12 +57,12 @@ class BiliLogin:
                 state_code = poll['data']['code']
                 message = poll['data']['message']
                 if state_code == 0:
-                    print(head + ' ' + '登录成功！')
+                    print(Notice + ' ' + '登录成功！')
                     sessdata = resp.cookies.get('SESSDATA')
                     dede_userid = resp.cookies.get('DedeUserID')
                     bili_jct = resp.cookies.get('bili_jct')
                     return sessdata, dede_userid, bili_jct
                 elif state_code == 86038:
-                    print(head + ' ' + message)
+                    print(Notice + ' ' + message)
                     break
             await asyncio.sleep(2)

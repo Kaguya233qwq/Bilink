@@ -65,12 +65,13 @@ def run(sess_data, user_id, bili_jct):
             return self.sender_uid
 
     current_msg = BiliMsg().get_timestamp()
-    print("bilibili消息助手正在运行...")
+    print("\033[34mbilibili消息助手正在运行...\033[0m")
     while True:
         bili = BiliMsg()
         if bili.get_timestamp() != current_msg and bili.get_sender_uid() != bili.SelfUid:
-            print('有人发了条消息:%s' % bili.get_msg_content())
+            print("\033[4;33m[有人发了条消息]: \033[0m" + bili.get_msg_content())
             if '你好' in bili.get_msg_content():
+                content = '(*´▽｀)ノノ你好鸭~~'
                 data = {
                     'msg[sender_uid]': str(bili.SelfUid),
                     'msg[receiver_id]': bili.get_talker_id(),
@@ -81,7 +82,7 @@ def run(sess_data, user_id, bili_jct):
                     'msg[timestamp]': int(time.time()),
                     'csrf': bili_jct,
                     'csrf_token': bili_jct,
-                    'msg[content]': '{"content": "(*´▽｀)ノノ你好鸭~~"}',
+                    'msg[content]': '{"content": "%s"}' % content,
                     'msg[new_face_version]': 0,
                     'from_firework': 0,
                     'build': 0,
@@ -93,6 +94,7 @@ def run(sess_data, user_id, bili_jct):
                     headers=headers,
                     data=data
                 )
-                print(response.text)
+                if response.status_code == 200:
+                    print("\033[32m[回复了一条消息]: \033[0m" + content)
         current_msg = bili.get_timestamp()
         time.sleep(2)
