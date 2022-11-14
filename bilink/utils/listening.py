@@ -5,6 +5,7 @@ import time
 url = 'https://api.vc.bilibili.com/session_svr/v1/session_svr/get_sessions?session_type=1'
 urls = 'https://api.vc.bilibili.com/svr_sync/v1/svr_sync/fetch_session_msgs'
 send = 'https://api.vc.bilibili.com/web_im/v1/web_im/send_msg'
+new = 'https://api.vc.bilibili.com/session_svr/v1/session_svr/new_sessions?begin_ts=1668417681186054&build=0&mobi_app=web'
 headers = {
     'authority': 'api.vc.bilibili.com',
     'sec-ch-ua': '"Chromium";v="21", " Not;A Brand";v="99"',
@@ -19,6 +20,7 @@ headers = {
     'referer': 'https://message.bilibili.com/',
     'accept-language': 'zh-CN,zh;q=0.9'
 }
+Error = "\033[35m[Error]\033[0m"
 
 
 def run(sess_data, user_id, bili_jct):
@@ -36,17 +38,20 @@ def run(sess_data, user_id, bili_jct):
         SelfUid = int(user_id)
 
         def get(self):
-            resp = httpx.get(url=url, cookies=cookies, headers=headers)
-            json_str = json.loads(resp.text)
-            session_list = json_str['data']['session_list']
-            last_talker = session_list[0]
-            last_msg = last_talker['last_msg']
-            msg_json = json.loads(last_msg['content'].replace('\'', '\"'))
+            try:
+                resp = httpx.get(url=url, cookies=cookies, headers=headers)
+                json_str = json.loads(resp.text)
+                session_list = json_str['data']['session_list']
+                last_talker = session_list[0]
+                last_msg = last_talker['last_msg']
+                msg_json = json.loads(last_msg['content'].replace('\'', '\"'))
 
-            self.talker_id = last_talker['talker_id']
-            self.msg_content = msg_json['content']
-            self.timestamp = last_msg['timestamp']
-            self.sender_uid = last_msg['sender_uid']
+                self.talker_id = last_talker['talker_id']
+                self.msg_content = msg_json['content']
+                self.timestamp = last_msg['timestamp']
+                self.sender_uid = last_msg['sender_uid']
+            except Exception as e:
+                print(Error+str(e))
 
         def get_talker_id(self):
             self.get()
