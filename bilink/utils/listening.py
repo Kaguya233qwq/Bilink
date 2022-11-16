@@ -1,6 +1,7 @@
 import httpx
 import json
 import time
+from bilink.utils.logger import Logger
 
 url = 'https://api.vc.bilibili.com/session_svr/v1/session_svr/get_sessions?session_type=1'
 urls = 'https://api.vc.bilibili.com/svr_sync/v1/svr_sync/fetch_session_msgs'
@@ -20,26 +21,19 @@ headers = {
     'referer': 'https://message.bilibili.com/',
     'accept-language': 'zh-CN,zh;q=0.9'
 }
-Error = "\033[35m[Error]\033[0m"
 
 
-def run(sess_data, user_id, bili_jct):
-    cookies = {
-        'SESSDATA': sess_data,
-        'DedeUserID': user_id,
-        'bili_jct': bili_jct
-    }
-
+def run(cookies_: json):
     class BiliMsg:
         talker_id = ''
         msg_content = ''
         timestamp = ''
         sender_uid = ''
-        SelfUid = int(user_id)
+        SelfUid = int(cookies_.get('DedeUserID'))
 
         def get(self):
             try:
-                resp = httpx.get(url=url, cookies=cookies, headers=headers)
+                resp = httpx.get(url=url, cookies=cookies_, headers=headers)
                 json_str = json.loads(resp.text)
                 session_list = json_str['data']['session_list']
                 last_talker = session_list[0]
@@ -51,7 +45,7 @@ def run(sess_data, user_id, bili_jct):
                 self.timestamp = last_msg['timestamp']
                 self.sender_uid = last_msg['sender_uid']
             except Exception as e:
-                print(Error+str(e))
+                Logger.error(e)
 
         def get_talker_id(self):
             self.get()
@@ -70,11 +64,11 @@ def run(sess_data, user_id, bili_jct):
             return self.sender_uid
 
     current_msg = BiliMsg().get_timestamp()
-    print("\033[34mbilibili消息助手正在运行...\033[0m")
+    Logger.info("bilibili消息助手正在运行...\033[0m")
     while True:
         bili = BiliMsg()
         if bili.get_timestamp() != current_msg and bili.get_sender_uid() != bili.SelfUid:
-            print("\033[4;33m[有人发了条消息]: \033[0m" + bili.get_msg_content())
+            Logger.message(bili.get_msg_content())
             if '你好' in bili.get_msg_content():
                 content = '(*´▽｀)ノノ你好鸭~~'
                 data = {
@@ -85,8 +79,8 @@ def run(sess_data, user_id, bili_jct):
                     'msg[msg_status]': 0,
                     'msg[dev_id]': '00000000-0000-0000-0000-000000000000',
                     'msg[timestamp]': int(time.time()),
-                    'csrf': bili_jct,
-                    'csrf_token': bili_jct,
+                    'csrf': cookies_.get('bili_jct'),
+                    'csrf_token': cookies_.get('bili_jct'),
                     'msg[content]': '{"content": "%s"}' % content,
                     'msg[new_face_version]': 0,
                     'from_firework': 0,
@@ -95,11 +89,11 @@ def run(sess_data, user_id, bili_jct):
                 }
                 response = httpx.post(
                     url=send,
-                    cookies=cookies,
+                    cookies=cookies_,
                     headers=headers,
                     data=data
                 )
                 if response.status_code == 200:
-                    print("\033[32m[回复了一条消息]: \033[0m" + content)
+                    Logger.auto(content)
         current_msg = bili.get_timestamp()
         time.sleep(2)

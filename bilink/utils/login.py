@@ -2,8 +2,7 @@ import httpx
 import json
 import qrcode
 import asyncio
-
-Notice = "\033[32m[Notice]\033[0m"
+from bilink.utils.logger import Logger
 
 
 class BiliLogin:
@@ -21,6 +20,7 @@ class BiliLogin:
         }
 
     async def get_qrcode(self):
+        """获取二维码"""
         async with httpx.AsyncClient() as client:
             resp = await client.get(
                 url=self.url_qrcode,
@@ -33,13 +33,13 @@ class BiliLogin:
 
     @staticmethod
     async def save_qrcode(url_qrcode):
-        global Notice
+        """保存二维码到本地并在终端输出"""
         qr_code = qrcode.QRCode()
         qr_code.add_data(url_qrcode)
         qr_code.print_ascii(invert=True)
         qr_code = qr_code.make_image()
         qr_code.save('qrCode.png')
-        print(Notice + ' 二维码生成成功，请使用bilibili客户端扫描确认')
+        Logger.success(' 二维码生成成功，请使用bilibili客户端扫描确认')
 
     async def polling(self, qrcode_key):
         """轮询扫码状态"""
@@ -57,12 +57,17 @@ class BiliLogin:
                 state_code = poll['data']['code']
                 message = poll['data']['message']
                 if state_code == 0:
-                    print(Notice + ' ' + '登录成功！')
-                    sessdata = resp.cookies.get('SESSDATA')
-                    dede_userid = resp.cookies.get('DedeUserID')
+                    Logger.success('登录成功！')
+                    sess_data = resp.cookies.get('SESSDATA')
+                    user_id = resp.cookies.get('DedeUserID')
                     bili_jct = resp.cookies.get('bili_jct')
-                    return sessdata, dede_userid, bili_jct
+                    cookies = {
+                        'SESSDATA': sess_data,
+                        'DedeUserID': user_id,
+                        'bili_jct': bili_jct
+                    }
+                    return cookies
                 elif state_code == 86038:
-                    print(Notice + ' ' + message)
+                    Logger.warning(message)
                     break
             await asyncio.sleep(2)
