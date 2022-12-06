@@ -2,7 +2,6 @@ import httpx
 import json
 import time
 from bilink.utils.logger import Logger
-import sys
 
 url = 'https://api.vc.bilibili.com/session_svr/v1/session_svr/get_sessions?session_type=1'
 urls = 'https://api.vc.bilibili.com/svr_sync/v1/svr_sync/fetch_session_msgs'

@@ -34,7 +34,12 @@ class BiliLogin:
     @staticmethod
     async def save_qrcode(url_qrcode):
         """保存二维码到本地并在终端输出"""
-        qr_code = qrcode.QRCode()
+        qr_code = qrcode.QRCode(
+            version=None,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=1,
+            border=2
+        )
         qr_code.add_data(url_qrcode)
         qr_code.print_ascii(invert=True)
         qr_code = qr_code.make_image()
@@ -69,5 +74,5 @@ class BiliLogin:
                     return cookies
                 elif state_code == 86038:
                     Logger.warning(message)
-                    break
+                    return None
             await asyncio.sleep(2)

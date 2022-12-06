@@ -2,6 +2,7 @@ from bilink.utils.login import BiliLogin as Login
 from asyncio import run
 from bilink.utils import listening
 from bilink.utils.cookies import Cookies
+from bilink.utils.logger import Logger
 
 
 async def running():
@@ -13,12 +14,14 @@ async def running():
         try:
             listening.run(cookies_)
         except Exception as e:
-            str(e)
+            Logger.error('发生问题：%s' % e)
             await cookies.delete()
     else:
-        cookies_ = await cookies.get_cookie()
-        await cookies.save_cookie(cookies_)
-        listening.run(cookies_)
+        while True:
+            cookies_ = await cookies.get_cookie()
+            if cookies_:
+                await cookies.save_cookie(cookies_)
+                listening.run(cookies_)
 
 
 if __name__ == '__main__':
