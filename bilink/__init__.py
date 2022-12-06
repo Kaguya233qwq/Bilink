@@ -10,7 +10,11 @@ async def running():
     check = await cookies.check()
     if check:
         cookies_ = await cookies.load_cookie()
-        listening.run(cookies_)
+        try:
+            listening.run(cookies_)
+        except Exception as e:
+            str(e)
+            await cookies.delete()
     else:
         cookies_ = await cookies.get_cookie()
         await cookies.save_cookie(cookies_)

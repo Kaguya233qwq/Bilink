@@ -2,6 +2,7 @@ import httpx
 import json
 import time
 from bilink.utils.logger import Logger
+import sys
 
 url = 'https://api.vc.bilibili.com/session_svr/v1/session_svr/get_sessions?session_type=1'
 urls = 'https://api.vc.bilibili.com/svr_sync/v1/svr_sync/fetch_session_msgs'
@@ -41,11 +42,17 @@ def run(cookies_: json):
                 msg_json = json.loads(last_msg['content'].replace('\'', '\"'))
 
                 self.talker_id = last_talker['talker_id']
-                self.msg_content = msg_json['content']
+                if msg_json.get('content'):
+                    self.msg_content = msg_json['content']
+                elif msg_json.get('reply_content'):
+                    self.msg_content = msg_json['reply_content']
+                else:
+                    self.msg_content = ''
                 self.timestamp = last_msg['timestamp']
                 self.sender_uid = last_msg['sender_uid']
             except Exception as e:
-                Logger.error(e)
+                Logger.error("cookie已失效，请重新登录")
+                raise e
 
         def get_talker_id(self):
             self.get()
