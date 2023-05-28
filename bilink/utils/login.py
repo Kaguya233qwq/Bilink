@@ -17,6 +17,7 @@ class BiliLogin:
                 'Mozilla/5.0 (Windows NT 6.1; WOW64) '
                 'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/'
                 '53.0.2785.143 Safari/537.36 MicroMessenger/7.0.9.501',
+            'upgrade-insecure-requests': "1"
         }
 
     async def get_qrcode(self):
@@ -24,12 +25,21 @@ class BiliLogin:
         async with httpx.AsyncClient() as client:
             resp = await client.get(
                 url=self.url_qrcode,
-                headers=self.headers
+                headers=self.headers,
+                follow_redirects=True
             )
-            qrcode_obj = json.loads(resp.text)
-            qrcode_url = qrcode_obj['data']['url']
-            qrcode_key = qrcode_obj['data']['qrcode_key']
-            return qrcode_url, qrcode_key
+            if resp.status_code == 200:
+                qrcode_obj = resp.json()
+                qrcode_url = qrcode_obj['data']['url']
+                qrcode_key = qrcode_obj['data']['qrcode_key']
+                return {
+                    "url":qrcode_url,
+                    "key":qrcode_key
+                }
+            else:
+                Logger.warning(f"没有获取到二维码信息,返回值：{resp.status_code}")
+                return None
+        
 
     @staticmethod
     async def save_qrcode(url_qrcode):
@@ -56,7 +66,8 @@ class BiliLogin:
                 resp = await client.get(
                     url=self.url_poll,
                     headers=self.headers,
-                    params=params
+                    params=params,
+                    follow_redirects=True
                 )
                 poll = json.loads(resp.text)
                 state_code = poll['data']['code']

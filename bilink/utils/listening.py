@@ -1,7 +1,9 @@
+import sys
 import httpx
 import json
 import time
-from bilink.utils.logger import Logger
+from .logger import Logger
+from ..api import message
 
 url = 'https://api.vc.bilibili.com/session_svr/v1/session_svr/get_sessions?session_type=1'
 urls = 'https://api.vc.bilibili.com/svr_sync/v1/svr_sync/fetch_session_msgs'
@@ -33,7 +35,12 @@ def run(cookies_: json):
 
         def get(self):
             try:
-                resp = httpx.get(url=url, cookies=cookies_, headers=headers)
+                resp = httpx.get(
+                    url=url,
+                    cookies=cookies_,
+                    headers=headers,
+                    timeout=None
+                )
                 json_str = json.loads(resp.text)
                 session_list = json_str['data']['session_list']
                 last_talker = session_list[0]
@@ -50,8 +57,7 @@ def run(cookies_: json):
                 self.timestamp = last_msg['timestamp']
                 self.sender_uid = last_msg['sender_uid']
             except Exception as e:
-                Logger.error("cookie已失效，请重新登录")
-                raise e
+                Logger.error(f"cookie已失效，请重新登录:{e}")
 
         def get_talker_id(self):
             self.get()
@@ -71,35 +77,17 @@ def run(cookies_: json):
 
     current_msg = BiliMsg().get_timestamp()
     Logger.info("bilibili消息助手正在运行...\033[0m")
-    while True:
-        bili = BiliMsg()
-        if bili.get_timestamp() != current_msg and bili.get_sender_uid() != bili.SelfUid:
-            Logger.message(bili.get_msg_content())
-            if '你好' in bili.get_msg_content():
-                content = '(*´▽｀)ノノ你好鸭~~'
-                data = {
-                    'msg[sender_uid]': str(bili.SelfUid),
-                    'msg[receiver_id]': bili.get_talker_id(),
-                    'msg[receiver_type]': 1,
-                    'msg[msg_type]': 1,
-                    'msg[msg_status]': 0,
-                    'msg[dev_id]': '00000000-0000-0000-0000-000000000000',
-                    'msg[timestamp]': int(time.time()),
-                    'csrf': cookies_.get('bili_jct'),
-                    'csrf_token': cookies_.get('bili_jct'),
-                    'msg[content]': '{"content": "%s"}' % content,
-                    'msg[new_face_version]': 0,
-                    'from_firework': 0,
-                    'build': 0,
-                    'mobi_app': 'web'
-                }
-                response = httpx.post(
-                    url=send,
-                    cookies=cookies_,
-                    headers=headers,
-                    data=data
-                )
-                if response.status_code == 200:
-                    Logger.auto(content)
-        current_msg = bili.get_timestamp()
-        time.sleep(2)
+    try:
+        while True:
+            bili = BiliMsg()
+            if bili.get_timestamp() != current_msg and bili.get_sender_uid() != bili.SelfUid:
+                msg = bili.get_msg_content()
+                sender = bili.get_sender_uid()
+                Logger.message(f"用户[{sender}]:{msg}")
+                if '你好' in msg:
+                    message.send_text('(*´▽｀)ノノ你好鸭~~')
+            current_msg = bili.get_timestamp()
+            time.sleep(2)
+    except KeyboardInterrupt:
+        Logger.info('进程终止')
+        sys.exit()

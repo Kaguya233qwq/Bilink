@@ -10,16 +10,21 @@ class Cookies:
     """定义cookie类"""
 
     def __init__(self):
-        self.cache_path = r'C:\Users\Administrator\.login_cache'
+        self.cache_path = r'BilinkCache'
         self.cookie_file = self.cache_path + r'\cookie.bc'
 
     @staticmethod
     async def get_cookie():
         login_ = login.BiliLogin()
-        url, key = await login_.get_qrcode()
-        await login_.save_qrcode(url)
-        cookies = await login_.polling(key)
-        return cookies
+        qrcode = await login_.get_qrcode()
+        if qrcode:
+            url = qrcode.get('url')
+            key = qrcode.get('key')
+            await login_.save_qrcode(url)
+            cookies = await login_.polling(key)
+            return cookies
+        else:
+            return None
 
     async def save_cookie(self, cookie):
         try:

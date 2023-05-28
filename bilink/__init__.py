@@ -1,5 +1,7 @@
-from bilink.utils.login import BiliLogin as Login
+import sys
 from asyncio import run
+
+from bilink.utils.login import BiliLogin as Login
 from bilink.utils import listening
 from bilink.utils.cookies import Cookies
 from bilink.utils.logger import Logger
@@ -22,7 +24,8 @@ async def running():
             if cookies_:
                 await cookies.save_cookie(cookies_)
                 listening.run(cookies_)
+            else:
+                Logger.error('获取二维码失败！请联系开发者反馈问题')
+                break
 
 
-if __name__ == '__main__':
-    run(running())
