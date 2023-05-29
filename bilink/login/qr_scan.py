@@ -2,7 +2,7 @@ import httpx
 import json
 import qrcode
 import time
-from bilink.utils.logger import Logger
+from ..utils.logger import Logger
 
 
 class Login:

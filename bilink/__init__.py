@@ -1,9 +1,9 @@
-from bilink.login.qr_scan import Login as Login
+from .login.qr_scan import Login as Login
 
-from bilink.login.qr_scan import Login as Login
-from bilink.utils import listening
-from bilink.utils.cookies import Cookies
-from bilink.utils.logger import Logger
+from .login.qr_scan import Login as Login
+from .utils import listening
+from .utils.cookies import Cookies
+from .utils.logger import Logger
 
 
 async def running():

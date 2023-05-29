@@ -3,7 +3,7 @@ import httpx
 import json
 import time
 from .logger import Logger
-from ..api import message
+from .. import message
 
 url = 'https://api.vc.bilibili.com/session_svr/v1/session_svr/get_sessions?session_type=1'
 urls = 'https://api.vc.bilibili.com/svr_sync/v1/svr_sync/fetch_session_msgs'
