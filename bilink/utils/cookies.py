@@ -2,8 +2,8 @@ import os
 import json
 from pathlib import Path
 
-from bilink.utils import login
-from bilink.utils.logger import Logger
+from ..login.qr_scan import Login
+from .logger import Logger
 
 
 class Cookies:
@@ -15,13 +15,12 @@ class Cookies:
 
     @staticmethod
     async def get_cookie():
-        login_ = login.BiliLogin()
-        qrcode = await login_.get_qrcode()
+        qrcode = await Login.get_qrcode()
         if qrcode:
             url = qrcode.get('url')
             key = qrcode.get('key')
-            await login_.save_qrcode(url)
-            cookies = await login_.polling(key)
+            await Login.save_qrcode(url)
+            cookies = await Login.polling(key)
             return cookies
         else:
             return None

@@ -1,31 +1,30 @@
 import httpx
 import json
 import qrcode
-import asyncio
+import time
 from bilink.utils.logger import Logger
 
 
-class BiliLogin:
+class Login:
     """登录类"""
 
-    def __init__(self):
-        self.url_qrcode = 'http://passport.bilibili.com/x/passport-login/web/qrcode/generate'
-        self.url_poll = 'http://passport.bilibili.com/x/passport-login/web/qrcode/poll'
+    url_qrcode = 'http://passport.bilibili.com/x/passport-login/web/qrcode/generate'
+    url_poll = 'http://passport.bilibili.com/x/passport-login/web/qrcode/poll'
+    headers = {
+        'User-Agent':
+            'Mozilla/5.0 (Windows NT 6.1; WOW64) '
+            'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/'
+            '53.0.2785.143 Safari/537.36 MicroMessenger/7.0.9.501',
+        'upgrade-insecure-requests': "1"
+    }
 
-        self.headers = {
-            'User-Agent':
-                'Mozilla/5.0 (Windows NT 6.1; WOW64) '
-                'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/'
-                '53.0.2785.143 Safari/537.36 MicroMessenger/7.0.9.501',
-            'upgrade-insecure-requests': "1"
-        }
-
-    async def get_qrcode(self):
+    @classmethod
+    async def get_qrcode(cls):
         """获取二维码"""
         async with httpx.AsyncClient() as client:
             resp = await client.get(
-                url=self.url_qrcode,
-                headers=self.headers,
+                url=cls.url_qrcode,
+                headers=cls.headers,
                 follow_redirects=True
             )
             if resp.status_code == 200:
@@ -33,19 +32,17 @@ class BiliLogin:
                 qrcode_url = qrcode_obj['data']['url']
                 qrcode_key = qrcode_obj['data']['qrcode_key']
                 return {
-                    "url":qrcode_url,
-                    "key":qrcode_key
+                    "url": qrcode_url,
+                    "key": qrcode_key
                 }
             else:
                 Logger.warning(f"没有获取到二维码信息,返回值：{resp.status_code}")
                 return None
-        
 
     @staticmethod
     async def save_qrcode(url_qrcode):
         """保存二维码到本地并在终端输出"""
         qr_code = qrcode.QRCode(
-            version=None,
             error_correction=qrcode.constants.ERROR_CORRECT_L,
             box_size=1,
             border=2
@@ -56,7 +53,8 @@ class BiliLogin:
         qr_code.save('qrCode.png')
         Logger.success(' 二维码生成成功，请使用bilibili客户端扫描确认')
 
-    async def polling(self, qrcode_key):
+    @classmethod
+    async def polling(cls, qrcode_key):
         """轮询扫码状态"""
         while True:
             async with httpx.AsyncClient() as client:
@@ -64,8 +62,8 @@ class BiliLogin:
                     'qrcode_key': qrcode_key
                 }
                 resp = await client.get(
-                    url=self.url_poll,
-                    headers=self.headers,
+                    url=cls.url_poll,
+                    headers=cls.headers,
                     params=params,
                     follow_redirects=True
                 )
@@ -86,4 +84,6 @@ class BiliLogin:
                 elif state_code == 86038:
                     Logger.warning(message)
                     return None
-            await asyncio.sleep(2)
+                else:
+                    Logger.error(message)
+            time.sleep(2)
