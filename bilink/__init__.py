@@ -4,6 +4,7 @@ from .login.qr_scan import Login as Login
 from .utils import listening
 from .utils.cookies import Cookies
 from .utils.logger import Logger
+from .login import login
 
 
 async def running():
@@ -18,11 +19,4 @@ async def running():
             Logger.error('发生问题：%s' % e)
             await cookies.delete()
     else:
-        while True:
-            cookies_ = await cookies.get_cookie()
-            if cookies_:
-                await cookies.save_cookie(cookies_)
-                listening.run(cookies_)
-            else:
-                Logger.error('获取二维码失败！请联系开发者反馈问题')
-                break
+        login()

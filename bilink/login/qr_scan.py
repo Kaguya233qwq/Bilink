@@ -1,7 +1,9 @@
+from typing import Union
+
 import httpx
 import json
 import qrcode
-import time
+import asyncio
 from ..utils.logger import Logger
 
 
@@ -51,10 +53,9 @@ class Login:
         qr_code.print_ascii(invert=True)
         qr_code = qr_code.make_image()
         qr_code.save('qrCode.png')
-        Logger.success(' 二维码生成成功，请使用bilibili客户端扫描确认')
 
     @classmethod
-    async def polling(cls, qrcode_key):
+    async def polling(cls, qrcode_key) -> Union[None, dict[str:str]]:
         """轮询扫码状态"""
         while True:
             async with httpx.AsyncClient() as client:
@@ -84,6 +85,8 @@ class Login:
                 elif state_code == 86038:
                     Logger.warning(message)
                     return None
+                elif state_code == 86101:
+                    await asyncio.sleep(2)
                 else:
                     Logger.error(message)
-            time.sleep(2)
+                    return None
