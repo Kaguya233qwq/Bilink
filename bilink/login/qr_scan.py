@@ -21,7 +21,7 @@ class Login:
     }
 
     @classmethod
-    async def get_qrcode(cls):
+    async def get_qrcode(cls) -> Union[dict[str, str], None]:
         """获取二维码"""
         async with httpx.AsyncClient() as client:
             resp = await client.get(
@@ -42,7 +42,7 @@ class Login:
                 return None
 
     @staticmethod
-    async def save_qrcode(url_qrcode):
+    async def save_qrcode(url_qrcode) -> None:
         """保存二维码到本地并在终端输出"""
         qr_code = qrcode.QRCode(
             error_correction=qrcode.constants.ERROR_CORRECT_L,
@@ -90,3 +90,23 @@ class Login:
                 else:
                     Logger.error(message)
                     return None
+
+
+def login_by_qrcode() -> Union[None, dict[str:str]]:
+    """
+    通用bilibili扫码登录
+    """
+    qr = asyncio.run(Login.get_qrcode())
+    if qr:
+        url = qr.get('url')
+        key = qr.get('key')
+        await Login.save_qrcode(url)  # 保存二维码图片并输出至终端
+        Logger.success('二维码生成成功，请使用bilibili客户端扫描确认')
+        cookies: dict = await Login.polling(key)
+        if cookies:
+            return cookies
+        else:
+            Logger.error('未能返回正确数据，登陆失败')
+            return None
+    else:
+        return None
