@@ -3,51 +3,63 @@ import json
 from pathlib import Path
 
 from .logger import Logger
+from ..models import Authorization
 
 
 class Cookies:
     """定义cookie类"""
 
     cache_path = r'BilinkCache'
-    cookie_file = cache_path + r'\cookie.bc'
+    cookie_file = cache_path + r'\cookie'
 
     @classmethod
-    async def save(cls, cookie):
+    def save(cls, cookie) -> None:
+        """
+        保存cookie
+        """
         try:
             if not os.path.exists(cls.cache_path):
                 os.makedirs(cls.cache_path)
                 with open(cls.cookie_file, 'a') as f:
                     f.close()
-                Logger.success('缓存文件初始化成功')
+                Logger.success('Initializing cookie file..')
             with open(cls.cookie_file, 'w') as f:
                 cookie_ = json.dumps(cookie)
                 f.write(cookie_)
                 f.close()
-            Logger.success('cookie文件保存成功')
         except Exception as e:
-            Logger.error('cookie保存失败！%s' % e)
+            Logger.error(f'Cookie saving failed: {e}')
 
     @classmethod
-    async def load(cls):
+    def load(cls) -> None:
+        """
+        读取cookie
+        """
         try:
             with open(cls.cookie_file, 'r') as f:
                 cookie_str = f.read()
-                cookie = json.loads(cookie_str)
-                f.close()
-                Logger.success('cookie文件读取成功')
-                return cookie
+                cookie: dict = json.loads(cookie_str)
+                Authorization.Cookie = cookie
+                Authorization.Token = cookie.get('bili_jct')
+                Authorization.SelfUid = cookie.get('DedeUserID')
         except Exception as e:
-            Logger.error('cookie读取失败！%s' % e)
+            Logger.error(f'Cookie loading failed: {e}')
 
     @classmethod
-    async def check(cls):
+    def check(cls) -> bool:
+        """
+        检查cookie
+        """
         if Path(cls.cookie_file).is_file():
             return True
         else:
             return False
 
     @classmethod
-    async def clear(cls):
+    def clear(cls) -> None:
+        """
+        清除cookie
+        """
         if Path(cls.cookie_file).is_file():
             Path(cls.cookie_file).unlink()
-            Logger.success('cookie清除成功')
+            Logger.success('Cookie cleared successful')

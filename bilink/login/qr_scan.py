@@ -1,32 +1,25 @@
-from typing import Optional
+from typing import Optional, Dict
 
 import httpx
 import json
 import qrcode
 import asyncio
+
+from ..models import Api
 from ..utils.logger import Logger
+from ..utils.tools import headers
 
 
 class Login:
     """登录类"""
 
-    url_qrcode = 'http://passport.bilibili.com/x/passport-login/web/qrcode/generate'
-    url_poll = 'http://passport.bilibili.com/x/passport-login/web/qrcode/poll'
-    headers = {
-        'User-Agent':
-            'Mozilla/5.0 (Windows NT 6.1; WOW64) '
-            'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/'
-            '53.0.2785.143 Safari/537.36 MicroMessenger/7.0.9.501',
-        'upgrade-insecure-requests': "1"
-    }
-
     @classmethod
-    async def get_qrcode(cls) -> Optional[dict]:
+    async def get_qrcode(cls) -> Optional[Dict[str, str]]:
         """获取二维码"""
         async with httpx.AsyncClient() as client:
             resp = await client.get(
-                url=cls.url_qrcode,
-                headers=cls.headers,
+                url=Api.QRCODE_GENERATE,
+                headers=headers,
                 follow_redirects=True
             )
             if resp.status_code == 200:
@@ -55,7 +48,7 @@ class Login:
         qr_code.save('qrCode.png')
 
     @classmethod
-    async def polling(cls, qrcode_key) -> Optional[dict]:
+    async def polling(cls, qrcode_key) -> Optional[Dict[str, str]]:
         """轮询扫码状态"""
         while True:
             async with httpx.AsyncClient() as client:
@@ -63,8 +56,8 @@ class Login:
                     'qrcode_key': qrcode_key
                 }
                 resp = await client.get(
-                    url=cls.url_poll,
-                    headers=cls.headers,
+                    url=Api.QRCODE_POLL,
+                    headers=headers,
                     params=params,
                     follow_redirects=True
                 )
@@ -87,12 +80,15 @@ class Login:
                     return None
                 elif state_code == 86101:
                     await asyncio.sleep(2)
+                elif state_code == 86090:
+                    Logger.success('已扫码，请在手机上确认')
+                    await asyncio.sleep(2)
                 else:
                     Logger.error(message)
                     return None
 
 
-async def login_by_qrcode() -> Optional[dict]:
+async def login_by_qrcode() -> Optional[Dict[str, str]]:
     """
     通用bilibili扫码登录
     """
