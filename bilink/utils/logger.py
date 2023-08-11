@@ -1,4 +1,7 @@
 import datetime
+from colorama import init
+
+init(autoreset=True)
 
 
 class Logger(object):

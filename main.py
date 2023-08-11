@@ -1,6 +1,6 @@
 import asyncio
 
-from bilink import running
+from bilink import main
 
 if __name__ == '__main__':
-    asyncio.run(running())
+    asyncio.run(main())

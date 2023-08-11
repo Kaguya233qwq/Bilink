@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Optional
 
 import httpx
 import json
@@ -21,7 +21,7 @@ class Login:
     }
 
     @classmethod
-    async def get_qrcode(cls) -> Union[dict[str, str], None]:
+    async def get_qrcode(cls) -> Optional[dict]:
         """获取二维码"""
         async with httpx.AsyncClient() as client:
             resp = await client.get(
@@ -55,7 +55,7 @@ class Login:
         qr_code.save('qrCode.png')
 
     @classmethod
-    async def polling(cls, qrcode_key) -> Union[None, dict[str:str]]:
+    async def polling(cls, qrcode_key) -> Optional[dict]:
         """轮询扫码状态"""
         while True:
             async with httpx.AsyncClient() as client:
@@ -92,11 +92,11 @@ class Login:
                     return None
 
 
-def login_by_qrcode() -> Union[None, dict[str:str]]:
+async def login_by_qrcode() -> Optional[dict]:
     """
     通用bilibili扫码登录
     """
-    qr = asyncio.run(Login.get_qrcode())
+    qr = await Login.get_qrcode()
     if qr:
         url = qr.get('url')
         key = qr.get('key')
