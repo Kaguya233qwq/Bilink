@@ -7,7 +7,7 @@ import asyncio
 
 from ..models import Api
 from ..utils.logger import Logger
-from ..utils.tools import headers
+from ..utils.tools import create_headers
 
 
 class Login:
@@ -19,7 +19,7 @@ class Login:
         async with httpx.AsyncClient() as client:
             resp = await client.get(
                 url=Api.QRCODE_GENERATE,
-                headers=headers,
+                headers=create_headers(),
                 follow_redirects=True
             )
             if resp.status_code == 200:
@@ -55,9 +55,9 @@ class Login:
                 params = {
                     'qrcode_key': qrcode_key
                 }
-                resp = await client.get(
+                resp: httpx.Response = await client.get(
                     url=Api.QRCODE_POLL,
-                    headers=headers,
+                    headers=create_headers(),
                     params=params,
                     follow_redirects=True
                 )
@@ -68,11 +68,15 @@ class Login:
                     Logger.success('登录成功！')
                     sess_data = resp.cookies.get('SESSDATA')
                     user_id = resp.cookies.get('DedeUserID')
+                    ck_md5 = resp.cookies.get('DedeUserID__ckMd5')
                     bili_jct = resp.cookies.get('bili_jct')
+                    sid = resp.cookies.get('sid')
                     cookies = {
                         'SESSDATA': sess_data,
                         'DedeUserID': user_id,
-                        'bili_jct': bili_jct
+                        'bili_jct': bili_jct,
+                        'DedeUserID__ckMd5': ck_md5,
+                        'sid': sid
                     }
                     return cookies
                 elif state_code == 86038:

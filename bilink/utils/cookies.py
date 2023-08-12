@@ -41,7 +41,7 @@ class Cookies:
                 cookie: dict = json.loads(cookie_str)
                 Authorization.Cookie = cookie
                 Authorization.Token = cookie.get('bili_jct')
-                Authorization.SelfUid = cookie.get('DedeUserID')
+                Authorization.SelfUid = int(cookie.get('DedeUserID'))
         except Exception as e:
             Logger.error(f'Cookie loading failed: {e}')
 

@@ -1,7 +1,6 @@
 from .qr_scan import login_by_qrcode
 from ..utils import server
 from ..utils.cookies import Cookies
-from ..utils.logger import Logger
 
 
 async def login() -> None:
@@ -14,11 +13,7 @@ async def login() -> None:
         check = cookies.check()
         if check:
             cookies.load()
-            try:
-                server.run()
-            except Exception as e:
-                Logger.error(f'发生问题：{e}')
-                break
+            await server.run()
         else:
             token = await login_by_qrcode()
             cookies.save(token)

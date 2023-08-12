@@ -1,12 +1,11 @@
-from plistlib import Dict
+from typing import Dict
 
 HOST = 'https://api.vc.bilibili.com'
 LOGIN = 'http://passport.bilibili.com/x/passport-login'
 
 
 class Api:
-    GET_SESSIONS = f'{HOST}/session_svr/v1/session_svr/get_sessions'
-    '?session_type=1'
+    GET_SESSIONS = f'{HOST}/session_svr/v1/session_svr/get_sessions?session_type=1'
     FETCH_SESSION_MSGS = f'{HOST}/svr_sync/v1/svr_sync/fetch_session_msgs'
     SEND_MSG = f'{HOST}/web_im/v1/web_im/send_msg'
     NEW_SESSIONS = f'{HOST}/session_svr/v1/session_svr/new_sessions'
@@ -28,4 +27,6 @@ class Message:
     TalkerId: str
     MsgContent: str
     Timestamp: int
-    SenderUid: str
+    SenderUid: int
+
+    LastTimestamp: int
