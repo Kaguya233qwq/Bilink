@@ -1,10 +1,8 @@
 <div align="center">
 
 <p align="center">
-  <a href=""><img src="" width="200" height="200" alt="bilink"></a>
+  <a href=""><img src="https://github.com/Kaguya233qwq/Bilink/blob/main/icon.png?raw=ture" width="" height="" alt="bilink"></a>
 </p>
-
-# Bilink
 
 ✨ 基于轮询的原生哔哩哔哩消息自动回复工具 ✨_
 
