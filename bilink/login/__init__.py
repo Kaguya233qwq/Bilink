@@ -10,13 +10,11 @@ async def login() -> None:
     """
     cookies = Cookies()
     while True:
-        try:
-            check = cookies.check()
-            if check:
-                cookies.load()
-                await server.run()
-            else:
-                token = await login_by_qrcode()
-                cookies.save(token)
-        except KeyboardInterrupt:
-            print('用户退出')
+             
+        check = cookies.check()
+        if check:
+            cookies.load()
+            await server.run()
+        else:
+            token = await login_by_qrcode()
+            cookies.save(token)
