@@ -112,10 +112,9 @@ async def send_text_msg(msg: str, receiver_id: int) -> None:
         Logger.error(f"发生错误:{e}")
         sys.exit(-1)
 
-
-async def fetch_msgs() -> None:
+async def send_request() -> bool:
     """
-    获取最新一条消息记录
+    发送网络请求并解析数据
     """
     try:
         async with httpx.AsyncClient() as client:
@@ -142,9 +141,24 @@ async def fetch_msgs() -> None:
                 Message.MsgContent = ''
             Message.Timestamp = last_msg['timestamp']
             Message.SenderUid = last_msg['sender_uid']
+            return True
     except (httpx.HTTPError, httpx.ConnectError):
         Logger.error(f"网络错误，请关闭代理")
         sys.exit(-1)
     except Exception as e:
-        Logger.error(f"发生错误:{e}")
-        sys.exit(-1)
+        Logger.error(f"发生错误:{e},正在重试...")
+        time.sleep(2)
+        return False
+    
+
+
+async def fetch_msgs() -> None:
+    """
+    获取最新一条消息记录
+    """
+    while True:
+        check = await send_request()
+        if check:
+            break
+    
+    
