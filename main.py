@@ -1,6 +1,6 @@
 import asyncio
 
-from bilink import main
+from src.bilink import main
 
 if __name__ == '__main__':
     try:
