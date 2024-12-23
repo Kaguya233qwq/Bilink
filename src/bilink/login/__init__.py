@@ -10,7 +10,6 @@ async def login() -> None:
     """
     cookies = Cookies()
     while True:
-             
         check = cookies.check()
         if check:
             cookies.load()

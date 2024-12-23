@@ -1,0 +1,15 @@
+[project]
+name = "Bilink"
+version = "0.9.0-b3"
+description = "Default template for PDM package"
+authors = [
+    {name = "marisa", email = "1435608435@qq.com"},
+]
+dependencies = ["httpx>=0.28.1", "qrcode>=8.0"]
+requires-python = ">=3.9"
+readme = "README.md"
+license = {text = "MIT"}
+
+
+[tool.pdm]
+distribution = false
