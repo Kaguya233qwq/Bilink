@@ -6,9 +6,9 @@ from typing import Pattern, AnyStr
 import httpx
 import re
 
-from bilink.models import Authorization, Api, Message
-from bilink.utils.logger import Logger
-from bilink.utils.tools import create_headers
+from .models import Authorization, Api, Message
+from .utils.logger import Logger
+from .utils.tools import create_headers
 
 
 class __BaseMatcher:
