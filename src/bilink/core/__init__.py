@@ -1,14 +1,13 @@
-from .qr_scan import login_by_qrcode
+from ..login.qr_scan import login_by_qrcode
 from ..utils import server
-from ..utils.cookies import Cookies
+from ..utils.cookie import Cookie
 
 
-async def login() -> None:
+async def run_forever() -> None:
     """
-    通用bilibili登录
-    :return:
+    启动服务
     """
-    cookies = Cookies()
+    cookies = Cookie()
     while True:
         check = cookies.check()
         if check:

@@ -1,9 +1,10 @@
 import asyncio
 
-from src.bilink import main
+from src.bilink.core import run_forever
+from src.bilink.utils.logger import Logger
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
-        asyncio.run(main())
+        asyncio.run(run_forever())
     except KeyboardInterrupt:
-        print('用户退出')
+        Logger.info("server shutdown")
