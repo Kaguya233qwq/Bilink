@@ -1,126 +1,99 @@
-import datetime
-from colorama import init
+import inspect
+import logging
+from typing import Literal
 
-init(autoreset=True)
 
+class Logger:
+    """
+    控制台日志类
+    """
 
-class Logger(object):
-    """日志类"""
+    def __init__(self) -> None:
+        self.caller_frame = inspect.stack()[1]  # 获取调用者的帧
+        self.caller_module = inspect.getmodule(self.caller_frame[0])  # 获取调用者的模块
+        self.caller_filename = self.caller_frame[1]  # 调用者的文件名
+        self.caller_lineno = self.caller_frame[2]  # 调用者的行号
 
-    @classmethod
-    def message(cls, message):
+    __logger = logging.getLogger(__name__)
+    __handler = logging.StreamHandler()
+    __handler.setLevel(logging.INFO)
+    __logger.setLevel(logging.INFO)
+    __logger.addHandler(__handler)
+
+    def get_caller(self):
         """
-        输出收到的消息
-
-        :param message: 收到的消息
-        :return:
+        获取模块调用信息
         """
-        results = cls.formatter(
-            '\033[1;4;33m%s\033[0m',
-            '[MESSAGE]',
-            message
+        print(
+            f"Called from module {self.caller_module.__name__} in file {self.caller_filename}, line {self.caller_lineno}"
         )
-        print(results)
 
     @classmethod
-    def auto(cls, message):
+    def set_level(
+        cls, level: Literal["NOTSET", "DEBUG", "INFO", "WARN", "ERROR", "FATAL"]
+    ):
         """
-        输出自动回复的消息
+        设置日志优先级别 一般默认为INFO
+        """
+        cls.__logger.setLevel(level)
+        cls.__handler.setLevel(level)
 
-        :param message: 自动回复的消息
-        :return:
+    @classmethod
+    def info(cls, message: str):
         """
-        results = cls.formatter(
-            '\033[1;4;32m%s\033[0m',
-            '[AUTO]',
-            message
+        输出程序执行信息
+        """
+        cls.__handler.setFormatter(
+            logging.Formatter(
+                "%(asctime)s - \033[0;36m[%(levelname)s]\033[0m :  %(message)s"
+            )
         )
-        print(results)
+        cls.__logger.info(message)
 
     @classmethod
-    def success(cls, message):
+    def warning(cls, message: str):
         """
-        输出成功信息
-
-        :param message: 成功信息
-        :return:
+        输出警告信息
         """
-        results = cls.formatter(
-            '\033[1;32m%s\033[0m',
-            '[SUCCESS]',
-            message
+        cls.__handler.setFormatter(
+            logging.Formatter(
+                "%(asctime)s - \033[0;33m[%(levelname)s]\033[0m :  %(message)s"
+            )
         )
-        print(results)
+        cls.__logger.warning(message)
 
     @classmethod
-    def info(cls, message):
+    def error(cls, message: str):
         """
-        输出程序运行详细信息
-
-        :param message: 详细信息
-        :return:
+        输出错误信息
         """
-        results = cls.formatter(
-            '\033[1;34m%s\033[0m',
-            '[INFO]',
-            message
+        cls.__handler.setFormatter(
+            logging.Formatter(
+                "%(asctime)s - \033[0;31m[%(levelname)s]\033[0m :  %(message)s"
+            )
         )
-        print(results)
+        cls.__logger.error(message)
 
     @classmethod
-    def warning(cls, message):
+    def fatal(cls, message: str):
         """
-        输出程序运行警告信息
-
-        :param message: 警告信息
-        :return:
+        输出致命异常信息
         """
-        results = cls.formatter(
-            '\033[1;33m%s\033[0m',
-            '[WARNING]',
-            message
+        cls.__handler.setFormatter(
+            logging.Formatter(
+                "%(asctime)s - \033[1;31m[%(levelname)s]\033[0m :  %(message)s"
+            )
         )
-        print(results)
+        cls.__logger.fatal(message)
 
     @classmethod
-    def error(cls, message):
+    def debug(cls, message: str):
         """
-        输出程序运行错误信息
-
-        :param message: 错误信息
-        :return:
+        输出调试信息
         """
-        results = cls.formatter(
-            '\033[1;31m%s\033[0m',
-            '[ERROR]',
-            message
+        cls.__handler.setFormatter(
+            logging.Formatter(
+                "%(asctime)s - \033[0;37m[%(levelname)s]\033[0m :  %(message)s"
+            )
         )
-        print(results)
-
-    @classmethod
-    def fatal(cls, message):
-        """
-        输出程序运行严重错误信息
-
-        :param message: 严重错误信息
-        :return:
-        """
-        results = cls.formatter(
-            '\033[1;35m%s\033[0m',
-            '[FATAL]',
-            message)
-        print(results)
-
-    @classmethod
-    def formatter(cls, colors, types, message):
-        """
-        更改控制台输出的日志颜色并格式化
-
-        :param colors: 颜色
-        :param message:提示信息
-        :param types: 日志等级
-        :return:
-        """
-        times = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        formatter = '%s-%s' % (times, colors % types) + message
-        return formatter
+        cls.__logger.debug(message)
