@@ -5,10 +5,33 @@ from typing import Pattern, AnyStr
 import httpx
 import re
 
-from ..utils.models import Authorization, Api, Message
+from ..utils.models import Authorization, Api
 from ..utils.logger import Logger
 from ..utils.tools import create_headers
 
+class Message:
+    """消息体对象"""
+
+    def __init__(
+        self,
+        sender_uid: int = 0,
+        send_to_uid: str = "",
+        content: str = "",
+        timestamp: int = 0,
+    ):
+        self.SenderUID: int = sender_uid
+        """发送人的uid"""
+
+        self.SendToUID: str = send_to_uid
+        """发送目标用户的uid"""
+
+        self.Content: str = content
+        """消息内容"""
+
+        self.Timestamp: int = timestamp
+        """时间戳"""
+
+# 实例化一个全局的消息对象
 latest_msg = Message()
 
 

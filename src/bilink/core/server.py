@@ -3,8 +3,7 @@ from asyncio import sleep
 from ..utils.logger import Logger
 from ..utils.tools import print_banner
 from . import message
-from .message import Matcher
-from ..utils.models import Message
+from .message import Matcher, Message
 
 
 async def run():
