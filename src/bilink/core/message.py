@@ -1,14 +1,13 @@
 import json
-import sys
 import time
 from typing import Pattern, AnyStr
 
 import httpx
 import re
 
-from .models import Authorization, Api, Message
-from .utils.logger import Logger
-from .utils.tools import create_headers
+from ..utils.models import Authorization, Api, Message
+from ..utils.logger import Logger
+from ..utils.tools import create_headers
 
 latest_msg = Message()
 

@@ -5,7 +5,7 @@ import json
 import qrcode
 import asyncio
 
-from ..models import Api
+from ..utils.models import Api
 from ..utils.logger import Logger
 from ..utils.tools import create_headers
 from ..utils.exception import GetLoginQrcodeFailedError

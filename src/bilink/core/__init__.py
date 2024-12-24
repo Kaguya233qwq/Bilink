@@ -1,5 +1,5 @@
 from . import server
-from ..login.qr_scan import login_by_qrcode
+from .login import login_by_qrcode
 from ..utils.cookie import Cookie
 
 

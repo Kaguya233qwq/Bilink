@@ -1,4 +1,3 @@
-import time
 from typing import Dict
 
 HOST = "https://api.vc.bilibili.com"

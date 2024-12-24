@@ -3,7 +3,7 @@ from pathlib import Path
 
 from .logger import Logger
 from .exception import CookieCacheNotFoundError
-from ..models import Authorization
+from .models import Authorization
 
 
 class Cookie:

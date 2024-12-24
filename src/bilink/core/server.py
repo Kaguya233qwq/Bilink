@@ -2,9 +2,9 @@ from asyncio import sleep
 
 from ..utils.logger import Logger
 from ..utils.tools import print_banner
-from .. import message
-from ..message import Matcher
-from ..models import Message
+from . import message
+from .message import Matcher
+from ..utils.models import Message
 
 
 async def run():
