@@ -16,26 +16,29 @@ _“一个简单的通信服务端”_
 
 ---
 
-## 测试版
+## 快速开始
 
-目前在测试阶段，仅供参考，非项目最终结构
-
-## 使用
-
-克隆项目，运行main或在你的测试函数中直接import包bilink
-
-在server文件中可以构造自动回复命令，示例：向当前登录用户私信发送“`你好`”，则自动回复“ `(*´▽｀)ノノ你好鸭~~`
+## 安装环境依赖
+```bash
+pdm install
+```
+## 运行项目
+```bash
+pdm run python main.py
+```
 
 ```python
-await message.fetch_msgs()
-await message.auto_reply('你好', '(*´▽｀)ノノ你好鸭~~')
-Message.LastTimestamp = Message.Timestamp
-await sleep(2)
+
 ```
 
 ---
 
 ## 更新记录
+
+2024.12.24 0.9.0-b4
+
+项目结构结构重构，若干函数重构与优化
+
 2024.2.6 0.9.0-b3
 
 修复数据获取失败导致的崩溃问题
