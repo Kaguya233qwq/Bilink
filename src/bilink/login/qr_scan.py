@@ -8,13 +8,14 @@ import asyncio
 from ..models import Api
 from ..utils.logger import Logger
 from ..utils.tools import create_headers
+from ..utils.exception import GetLoginQrcodeFailedError
 
 
 class Login:
     """登录类"""
 
-    @classmethod
-    async def get_qrcode(cls) -> Optional[Dict[str, str]]:
+    @staticmethod
+    async def get_qrcode() -> Optional[Dict[str, str]]:
         """获取二维码"""
         async with httpx.AsyncClient() as client:
             resp = await client.get(
@@ -31,8 +32,7 @@ class Login:
                     "key": qrcode_key
                 }
             else:
-                Logger.warning(f"没有获取到二维码信息,返回值：{resp.status_code}")
-                return None
+                raise GetLoginQrcodeFailedError()
 
     @staticmethod
     async def save_qrcode(url_qrcode) -> None:
@@ -47,8 +47,8 @@ class Login:
         qr_code = qr_code.make_image()
         qr_code.save('qrCode.png')
 
-    @classmethod
-    async def polling(cls, qrcode_key) -> Optional[Dict[str, str]]:
+    @staticmethod
+    async def polling(qrcode_key) -> Optional[Dict[str, str]]:
         """轮询扫码状态"""
         while True:
             async with httpx.AsyncClient() as client:
@@ -97,16 +97,13 @@ async def login_by_qrcode() -> Optional[Dict[str, str]]:
     通用bilibili扫码登录
     """
     qr = await Login.get_qrcode()
-    if qr:
-        url = qr.get('url')
-        key = qr.get('key')
-        await Login.save_qrcode(url)  # 保存二维码图片并输出至终端
-        Logger.success('二维码生成成功，请使用bilibili客户端扫描确认')
-        cookies: dict = await Login.polling(key)
-        if cookies:
-            return cookies
-        else:
-            Logger.error('未能返回正确数据，登陆失败')
-            return None
+    url = qr.get('url')
+    key = qr.get('key')
+    await Login.save_qrcode(url)  # 保存二维码图片并输出至终端
+    Logger.success('二维码生成成功，请使用bilibili客户端扫描确认')
+    cookies: dict = await Login.polling(key)
+    if cookies:
+        return cookies
     else:
+        Logger.error('未能返回正确数据，登陆失败')
         return None

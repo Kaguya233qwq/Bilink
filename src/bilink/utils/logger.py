@@ -39,6 +39,16 @@ class Logger:
         cls.__handler.setLevel(level)
 
     @classmethod
+    def success(cls, message: str):
+        """
+        输出程序执行成功信息
+        """
+        cls.__handler.setFormatter(
+            logging.Formatter("%(asctime)s - \033[0;32m[SUCCESS]\033[0m :  %(message)s")
+        )
+        cls.__logger.info(message)
+
+    @classmethod
     def info(cls, message: str):
         """
         输出程序执行信息

@@ -15,9 +15,9 @@ def create_headers() -> dict:
     return headers
 
 
-def create_banner() -> str:
+def print_banner() -> None:
     """
-    生成banner
+    打印banner
     """
     banner = """
  ███████████   ███  ████   ███             █████     
@@ -30,4 +30,3 @@ def create_banner() -> str:
 ░░░░░░░░░░░  ░░░░░ ░░░░░ ░░░░░ ░░░░ ░░░░░ ░░░░ ░░░░░ 
     """
     print(f"\033[1;34m{banner}\033[0m")
-    return f"\033[1;34m{banner}\033[0m"

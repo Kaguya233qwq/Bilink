@@ -10,65 +10,75 @@ from .models import Authorization, Api, Message
 from .utils.logger import Logger
 from .utils.tools import create_headers
 
+latest_msg = Message()
 
-class __BaseMatcher: ...
 
-
-class Matcher(__BaseMatcher):
+class Matcher:
     """
-    消息匹配规则
+    消息匹配器
     """
 
-    @classmethod
-    def starts_with(cls, msg: str) -> bool:
-        if Message.MsgContent.startswith(msg):
+    def __init__(self, message: Message):
+        self.message = message
+
+    def starts_with(self, content: str) -> bool:
+        """如果消息以指定内容开头时"""
+        if self.message.Content.startswith(content):
             return True
         else:
             return False
 
-    @classmethod
-    def ends_with(cls, msg: str) -> bool:
-        if Message.MsgContent.endswith(msg):
+    def ends_with(self, content: str) -> bool:
+        """如果消息以指定内容结尾时"""
+        if self.message.Content.endswith(content):
             return True
         else:
             return False
 
-    @classmethod
-    def contains(cls, msg: str) -> bool:
-        if msg in Message.MsgContent:
+    def contains(self, content: str) -> bool:
+        """如果消息内容中包含指定内容时"""
+        if content in self.message.Content:
             return True
         else:
             return False
 
-    @classmethod
-    def regex(cls, pattern: Pattern[AnyStr], msg: str) -> bool:
-        matched = re.findall(pattern, msg)
+    def send_by_user(self, user_id: str) -> bool:
+        """如果发送人为指定用户时"""
+        if self.message.SenderUID == user_id:
+            return True
+        else:
+            return False
+
+    def regex(self, pattern: Pattern[AnyStr]) -> bool:
+        """如果消息匹配指定正则表达式"""
+        matched = re.findall(pattern, self.message.Content)
         if matched:
             return True
         else:
             return False
 
+    def is_new_msg(self) -> bool:
+        """
+        判断如果为新消息且不是bot自己的消息
+        """
+        if (
+            latest_msg.Timestamp != self.message.Timestamp
+            and latest_msg.SenderUID != self.message.SenderUID
+            and Authorization.SelfUid != self.message.SenderUID
+        ):
+            return True
+        else:
+            return False
 
-def is_new_msg():
-    """
-    判断是否有新的消息（且不是自己的消息
-    """
-    if (
-        Message.Timestamp != Message.LastTimestamp
-        and Message.SenderUid != Authorization.SelfUid
-    ):
-        Logger.info(f"用户[{Message.SenderUid}]:{Message.MsgContent}")
-        return True
-    else:
-        return False
 
-
-async def auto_reply(keywords: str, msg: str) -> None:
-    """
-    根据关键词自动回复一条消息
-    """
-    if is_new_msg() and Matcher.starts_with(keywords):
-        await send_text_msg(msg, Message.SenderUid)
+# async def auto_reply(keywords: str, msg: str) -> None:
+#     """
+#     根据关键词自动回复一条消息
+#     """
+#     matcher = Matcher(latest_msg)
+#     if matcher.is_new_msg() and matcher.starts_with(keywords):
+#         Logger.info(f"用户[{Message.SenderUID}]:{Message.Content}")
+#         await send_text_msg(msg, Message.SenderUID)
 
 
 async def send_text_msg(msg: str, receiver_id: int) -> None:
@@ -104,56 +114,34 @@ async def send_text_msg(msg: str, receiver_id: int) -> None:
                 if res.json().get("code") == 0:
                     Logger.info(f"me :{msg}")
                 else:
-                    Logger.error(res.json().__str__())
+                    Logger.error(str(res.json()))
             else:
                 Logger.error("Error: Sending message failed")
     except Exception as e:
-        Logger.error(f"发生错误:{e}")
-        sys.exit(-1)
+        Logger.error(f"发送消息失败:{e}")
 
 
-async def send_request() -> bool:
+async def fetch_msg() -> Message:
     """
-    发送网络请求并解析数据
+    获取最新的消息对象
     """
-    try:
-        async with httpx.AsyncClient() as client:
-            client: httpx.AsyncClient
-            res: httpx.Response = await client.get(
-                url=Api.GET_SESSIONS,
-                cookies=Authorization.Cookie,
-                headers=create_headers(),
-                timeout=None,
-            )
-            string = res.json()
-            session_list = string["data"]["session_list"]
-            last_talker = session_list[0]
-            last_msg = last_talker["last_msg"]
-            msg_json = json.loads(last_msg["content"].replace("'", '"'))
-            Message.TalkerId = last_talker["talker_id"]
-            if msg_json.get("content"):
-                Message.MsgContent = msg_json["content"]
-            elif msg_json.get("reply_content"):
-                Message.MsgContent = msg_json["reply_content"]
-            else:
-                Message.MsgContent = ""
-            Message.Timestamp = last_msg["timestamp"]
-            Message.SenderUid = last_msg["sender_uid"]
-            return True
-    except (httpx.HTTPError, httpx.ConnectError):
-        Logger.error(f"网络错误，请关闭代理")
-        sys.exit(-1)
-    except Exception as e:
-        Logger.error(f"发生错误:{e},正在重试...")
-        time.sleep(2)
-        return False
 
-
-async def fetch_msgs() -> None:
-    """
-    获取最新一条消息记录
-    """
-    while True:
-        check = await send_request()
-        if check:
-            break
+    async with httpx.AsyncClient() as client:
+        client: httpx.AsyncClient
+        res: httpx.Response = await client.get(
+            url=Api.GET_SESSIONS,
+            cookies=Authorization.Cookie,
+            headers=create_headers(),
+            timeout=None,
+        )
+        string = res.json()
+        session_list = string["data"]["session_list"]
+        last_talker = session_list[0]
+        last_msg = last_talker["last_msg"]
+        msg_json = json.loads(last_msg["content"].replace("'", '"'))
+        return Message(
+            sender_uid=last_msg.get("sender_uid", 0),
+            send_to_uid=last_talker.get("talker_id", ""),
+            content=msg_json.get("content", ""),
+            timestamp=last_msg.get("timestamp", 0),
+        )

@@ -1,5 +1,5 @@
+from . import server
 from ..login.qr_scan import login_by_qrcode
-from ..utils import server
 from ..utils.cookie import Cookie
 
 
@@ -15,4 +15,5 @@ async def run_forever() -> None:
             await server.run()
         else:
             token = await login_by_qrcode()
-            cookies.save(token)
+            if token:
+                cookies.save(token)
