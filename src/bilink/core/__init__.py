@@ -7,12 +7,13 @@ async def run_forever() -> None:
     """
     启动服务
     """
-    while True:
-        check = Cookie.check()
-        if check:
-            Cookie.load()
-            await server.run()
-        else:
-            token = await login_by_qrcode()
-            if token:
-                Cookie.save(token)
+    # 检查cookie
+    check = Cookie.check()
+    if not check:
+        token = await login_by_qrcode()
+        if token:
+            Cookie.save(token)
+    # 加载cookie
+    Cookie.load()
+    # 启动服务
+    await server.run()
