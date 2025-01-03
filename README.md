@@ -35,6 +35,16 @@ pdm run python main.py
 
 ## 更新记录
 
+2024.1.3 0.9.0-b5
+
+新增matcher模块，重构Matcher类
+
+重构Message类，新增MessageManager类管理最新的消息
+
+重构server模块
+
+新增消息handler机制与hook机制
+
 2024.12.24 0.9.0-b4
 
 项目结构结构重构，若干函数重构与优化
