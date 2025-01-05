@@ -43,16 +43,13 @@ class Cookie:
         """
         检查cookie
         """
-        if Cookie.cookie_file.exists():
-            return True
-        else:
-            return False
+        return Cookie.cookie_file.exists()
 
     @staticmethod
     def clear() -> None:
         """
         清除cookie
         """
-        if Path(Cookie.cookie_file).exists():
-            Path(Cookie.cookie_file).unlink()
+        if Cookie.cookie_file.exists():
+            Cookie.cookie_file.unlink()
             Logger.success("Cookie cleared successfully")

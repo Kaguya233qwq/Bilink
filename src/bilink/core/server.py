@@ -1,7 +1,8 @@
 from asyncio import sleep
 
 from .message import Message, fetch_msg
-from .matcher import Matcher
+from .matcher import Matcher, MatchType
+from .handler import handler
 
 
 async def run():
@@ -11,9 +12,6 @@ async def run():
         msg: Message = await fetch_msg()
         # 实例化一个matcher，匹配消息内容
         matcher = Matcher(msg)
-        # # 注册钩子函数
-        # matcher.add_hook()
-        
-        # # 注册处理函数
-        # matcher.add_handler()
+        # 注册处理函数
+        handler.add_handler(MatchType.STARTS_WITH, matcher, "你好")
         await sleep(2)

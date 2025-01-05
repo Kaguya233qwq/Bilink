@@ -1,15 +1,20 @@
+from typing import Callable, List, Tuple
+from matcher import MatchType, Matcher
+
+
 class _Handler:
-    def __init__(self):
-        self.handle_list = []
+    """
+    消息处理器
+    """
+    def __init__(self) -> None:
+        self.handle_list: List[Tuple[Callable, Tuple, dict]] = []
 
-    def _callback_func(keywords: str, reply: str): ...
+    def add_handler(self, match_type: MatchType, matcher: Matcher, *args, **kwargs) -> None:
+        method: Callable = getattr(matcher, match_type)
+        self.handle_list.append((method, args, kwargs))
 
-    def register(self, keywords: str, reply: str):
-        self.handle_list.append((keywords, reply))
-
-    def handle_all(self):
-        for h in self.handle_list:
-            self._callback_func(h[0], h[1])
-
+    def handle_all(self) -> None:
+        for handler in self.handle_list:
+            handler[0](*handler[1], **handler[2])
 
 handler = _Handler()
