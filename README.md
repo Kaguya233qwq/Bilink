@@ -26,14 +26,38 @@ pdm install
 ```bash
 pdm run python main.py
 ```
+## 编写插件
 
 ```python
+
+bilink.plugins下存放了一个示例插件reply_hello.py
+
+from ..core.handler import handler
+from ..core.matcher import MatchType
+from ..core.message import send_text_msg
+
+
+@handler.register(MatchType.STARTS_WITH, "你好")
+def send():
+    send_text_msg("你好呀", "")
+
+handler.register表示注册一个消息处理器
+
+其接收参数为匹配类型MatchType以及它对应的参数，一般为要匹配的关键词
+
+MatchType下提供了一些常用的匹配类型，请开发者按需使用
 
 ```
 
 ---
 
 ## 更新记录
+
+2024.1.7 0.9.0-b6
+
+新增插件加载机制，引入插件式开发
+
+其他一定程度的重构
 
 2024.1.3 0.9.0-b5
 
