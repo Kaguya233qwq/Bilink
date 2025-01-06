@@ -33,25 +33,46 @@ pdm run python main.py
 bilink.plugins下存放了一个示例插件reply_hello.py
 
 from ..core.handler import handler
-from ..core.matcher import MatchType
-from ..core.message import send_text_msg
+from ..core.matcher import MatchType, Matcher
 
 
 @handler.register(MatchType.STARTS_WITH, "你好")
-def send():
-    send_text_msg("你好呀", "")
+async def say_hello(matcher: Matcher):
+
+    # 处理其他逻辑
+    # ...
+    # 调用回复方法
+    await matcher.reply("你好呀！")
 
 handler.register表示注册一个消息处理器
 
 其接收参数为匹配类型MatchType以及它对应的参数，一般为要匹配的关键词
 
+注意：被装饰的函数需要注入Matcher参数
+
+Matcher中有一个reply方法，可直接回复最新一条消息
+
 MatchType下提供了一些常用的匹配类型，请开发者按需使用
 
 ```
 
+## TODO
+
+目前项目结构已经重构得差不多了，但仍然存在一些问题
+
+比如插件目录只能耦合于内部，不能从外部独立开发
+
+不过目前的话已经可以实现异步回复以及自定义复杂的回调功能逻辑了
+
+再迭代几次差不多就可以发正式版力！
+
 ---
 
 ## 更新记录
+
+2024.1.7 0.9.0-b7
+
+修复异步问题，修改插件示例
 
 2024.1.7 0.9.0-b6
 
