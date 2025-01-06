@@ -40,6 +40,7 @@ class Message:
         )
         if check:
             # 如果判断为最新一条消息则需要更新最新消息
+            Logger.info(f"用户[{self.SenderUID}]:{self.Content}")
             message_manager.update_latest_msg(self)
         return check
 

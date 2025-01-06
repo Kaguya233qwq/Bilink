@@ -18,8 +18,8 @@ class _Handler:
         def decorator(callback_func):
             signature = inspect.signature(callback_func)
             callback_params = tuple([param.name for param in signature.parameters.values()])
-            def wrapper(*args, **kwargs):
-                callback_func(*args, **kwargs)
+            async def wrapper(*args, **kwargs):
+                await callback_func(*args, **kwargs)
 
             self.handle_list.append(
                     (match_type, params, callback_func, callback_params)
@@ -28,7 +28,7 @@ class _Handler:
 
         return decorator
 
-    def handle_all(self, matcher: Matcher) -> None:
+    async def handle_all(self, matcher: Matcher) -> None:
         """
         尝试触发消息处理器列表中的所有注册的handler
         """
@@ -37,7 +37,7 @@ class _Handler:
             # 调用注册的matcher中的匹配方法
             if matcher_method(handler[1]):
                 # 如果为True，则触发回调函数
-                handler[2](*handler[3])
+                await handler[2](matcher)
 
 
 handler = _Handler()

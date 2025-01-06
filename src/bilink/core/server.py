@@ -14,5 +14,5 @@ async def run():
         matcher = Matcher(msg)
         if matcher.is_new_msg:
             # 如果是新消息则尝试触发所有的handler
-            handler.handle_all(matcher)
+            await handler.handle_all(matcher)
         await sleep(2)

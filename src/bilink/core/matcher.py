@@ -1,7 +1,7 @@
 import re
 from re import Pattern
 from typing import AnyStr
-from .message import Message
+from .message import Message, send_text_msg
 
 
 class MatchType:
@@ -44,3 +44,7 @@ class Matcher:
     def regex(self, pattern: Pattern[AnyStr]) -> bool:
         """如果消息匹配指定正则表达式"""
         return self.is_new_msg and bool(re.findall(pattern, self.message.Content))
+    
+    async def reply(self, content: str) -> None:
+        """回复消息"""
+        await send_text_msg(content, self.message.SenderUID)
