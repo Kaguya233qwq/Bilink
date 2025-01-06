@@ -1,6 +1,6 @@
 [project]
 name = "Bilink"
-version = "0.9.0-b6"
+version = "0.9.0-b7"
 description = "a bot server based on bilibili api"
 authors = [
     {name = "marisa", email = "1435608435@qq.com"},
