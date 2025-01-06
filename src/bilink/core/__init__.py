@@ -1,19 +1,24 @@
-from . import server
+from . import server, plugin
 from .login import login_by_qrcode
 from ..utils.cookie import Cookie
 
 
-async def run_forever() -> None:
+async def start_server() -> None:
     """
     启动服务
     """
-    # 检查cookie
-    check = Cookie.check()
-    if not check:
-        token = await login_by_qrcode()
-        if token:
+    while True:
+        # 检查cookie
+        check = Cookie.check()
+        if not check:
+            token = await login_by_qrcode()
+            if not token:
+                continue
             Cookie.save(token)
-    # 加载cookie
-    Cookie.load()
-    # 启动服务
-    await server.run()
+        else:
+            # 加载cookie
+            Cookie.load()
+            # 加载所有插件
+            plugin.load_all()
+            # 启动服务
+            await server.run()
