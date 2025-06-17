@@ -64,7 +64,7 @@ Matcher为handler装饰器目标函数所必需的一个参数，你可以使用
 
 ```python
 @handler.register(MatchType.STARTS_WITH, "你好")
-async def do_nothing(matcher: _):
+async def do_nothing(_: Matcher):
     # 一个收到你好后什么都不做的handler
     pass
 ```
