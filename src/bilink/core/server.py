@@ -10,6 +10,10 @@ async def run():
     while True:
         # 获取并初始化最新的消息
         msg: Message = await fetch_msg()
+        if msg.is_empty():
+            # 如果没有来自用户的新消息则等待一段时间后继续
+            await sleep(2)
+            continue
         # 实例化一个matcher，匹配消息内容
         matcher = Matcher(msg)
         if matcher.is_new_msg:

@@ -11,19 +11,23 @@ class _Handler:
     def __init__(self) -> None:
         self.handle_list: List[Tuple[MatchType, Tuple]] = []
 
-    def register(self, match_type: MatchType, *params) -> None:
+    def register(self, match_type: MatchType = MatchType.NEW_MSG, *params) -> None:
         """
         装饰器：注册一个handler
         """
+
         def decorator(callback_func):
             signature = inspect.signature(callback_func)
-            callback_params = tuple([param.name for param in signature.parameters.values()])
+            callback_params = tuple(
+                [param.name for param in signature.parameters.values()]
+            )
+
             async def wrapper(*args, **kwargs):
                 await callback_func(*args, **kwargs)
 
             self.handle_list.append(
-                    (match_type, params, callback_func, callback_params)
-                )
+                (match_type, params, callback_func, callback_params)
+            )
             return wrapper
 
         return decorator

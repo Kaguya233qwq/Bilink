@@ -5,7 +5,7 @@ description = "a bot server based on bilibili api"
 authors = [
     {name = "marisa", email = "1435608435@qq.com"},
 ]
-dependencies = ["httpx>=0.28.1", "qrcode>=8.0", "pillow>=11.0.0"]
+dependencies = ["httpx>=0.28.1", "qrcode>=8.0", "pillow>=11.0.0", "openai>=1.87.0"]
 requires-python = ">=3.9"
 readme = "README.md"
 license = {text = "MIT"}

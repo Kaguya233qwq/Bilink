@@ -43,6 +43,12 @@ class Message:
             Logger.info(f"用户[{self.SenderUID}]:{self.Content}")
             message_manager.update_latest_msg(self)
         return check
+    
+    def is_empty(self) -> bool:
+        """
+        判断消息是否为空
+        """
+        return self.Timestamp == 0 and self.SenderUID == 0
 
 
 class MessageManager:
@@ -131,7 +137,12 @@ async def fetch_msg() -> Message:
         )
         string = res.json()
         session_list = string["data"]["session_list"]
+        Logger.debug(session_list)
         last_talker = session_list[0]
+        system_msg_type = last_talker.get("system_msg_type")
+        if system_msg_type != 0:
+            # 过滤所有不是非系统消息的会话
+            return Message()
         last_msg = last_talker["last_msg"]
         msg_json = json.loads(last_msg["content"].replace("'", '"'))
         message = Message(
