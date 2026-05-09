@@ -3,8 +3,7 @@ from ..core.matcher import MatchType, Matcher
 
 
 @handler.register(MatchType.STARTS_WITH, "你好")
-async def say_hello(matcher: Matcher):
-
+async def say_hello(matcher: Matcher) -> None:
     # 处理其他逻辑
     # ...
     # 调用回复方法

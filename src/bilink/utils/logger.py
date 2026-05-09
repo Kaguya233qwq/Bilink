@@ -24,8 +24,9 @@ class Logger:
         """
         获取模块调用信息
         """
+        module_name = self.caller_module.__name__ if self.caller_module else "Unknown"
         print(
-            f"Called from module {self.caller_module.__name__} in file {self.caller_filename}, line {self.caller_lineno}"
+            f"Called from module {module_name} in file {self.caller_filename}, line {self.caller_lineno}"
         )
 
     @classmethod

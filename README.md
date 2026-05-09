@@ -28,11 +28,11 @@ _“简单，轻量，快速”_
 
 ### 💿安装依赖
 ```bash
-pdm install
+uv sync
 ```
 ### ▶️运行项目
 ```bash
-pdm run python main.py
+uv run python main.py
 ```
 ### 🧩插件编写
 
