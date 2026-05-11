@@ -7,7 +7,7 @@ import qrcode  # type: ignore
 
 from ..utils.models import Api, Authorization
 from ..utils.logger import Logger
-from ..utils.tools import create_headers, encWbi
+from ..utils.tools import create_headers, enc_wbi
 from ..utils.exception import GetLoginQrcodeFailedError
 from ..events.message import MessageEvent
 from ..events.segment import MessageSegment
@@ -238,7 +238,6 @@ class BilibiliApi:
 
         return new_messages
 
-
     async def get_user_info(self, mid: int) -> dict:
         """获取某个用户的信息"""
         try:
@@ -353,7 +352,7 @@ class BilibiliApi:
 
             # 构造并签名参数
             params = {"mid": mid, "pn": pn, "ps": ps}
-            signed_params = encWbi(params, img_key, sub_key)
+            signed_params = enc_wbi(params, img_key, sub_key)
 
             # 发送带签名的请求
             headers = create_headers()

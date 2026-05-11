@@ -108,12 +108,12 @@ mixinKeyEncTab = [
 ]
 
 
-def getMixinKey(orig: str) -> str:
+def get_mixin_key(orig: str) -> str:
     return reduce(lambda s, i: s + orig[i], mixinKeyEncTab, "")[:32]
 
 
-def encWbi(params: dict, img_key: str, sub_key: str) -> dict:
-    mixin_key = getMixinKey(img_key + sub_key)
+def enc_wbi(params: dict, img_key: str, sub_key: str) -> dict:
+    mixin_key = get_mixin_key(img_key + sub_key)
     curr_time = round(time.time())
     params["wts"] = curr_time
     params = dict(sorted(params.items()))
