@@ -35,16 +35,13 @@ class LoginApi:
     async def save_qrcode(self, url_qrcode: str) -> None:
         """保存二维码到本地并在终端输出"""
         qr_code = qrcode.QRCode(
-            # Using int manually, ERROR_CORRECT_L is 1 usually or qrcode.constants.ERROR_CORRECT_L
             error_correction=1,
             box_size=1,
             border=2,
         )
         qr_code.add_data(url_qrcode)
         qr_code.print_ascii(invert=True)
-        # Type ignorance to skip Pillow related static issues
         img = qr_code.make_image()  # type: ignore
-        # Since 'make_image' returns an image instance, we write to a file via Pillow
         with open("qrCode.png", "wb") as f:
             img.save(f)  # type: ignore
 
